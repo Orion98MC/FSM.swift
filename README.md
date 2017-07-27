@@ -24,7 +24,8 @@ public convenience init(withStates states: [StateType])
 public init(withDefinitions definitions: [StateDefinition])
 ```
 
-When you use the former form init(withStates:), the states are automatically mapped to StateDefinition-s. FSM uses StateDefinition to augment the state with callbacks (see below)
+When you use the former form init(withStates:), the states are automatically mapped to StateDefinition-s. 
+FSM uses StateDefinition to augment the state with callbacks (see below)
 
 Define a transition:
 
@@ -48,7 +49,7 @@ Send an event:
 public func event(_ event: EventType)
 ```
 
-### States Callbacks
+### State Callbacks
 
 States can trigger 3 kinds of callbacks:
 
@@ -70,7 +71,7 @@ machine.definedState(.off)?.onEnter = {
 }
 ```
 
-State definitions is a simple wraper that augments the state with callbacks. Exemple:
+StateDefinition is a simple wraper that augments a state with callbacks. Exemple:
 
 ```swift
 let sd1 = FSM.StateDefinition(.off)
@@ -105,6 +106,12 @@ machine.definedState(.off)?.onEnter = {
 // Done!
 machine.event(.powerOn)
 ```
+
+## Limitations
+
+FSM is not Thread-Safe. 
+It is up to the user to decide how to deal with multiple Threads. 
+A common practice is to use a serial DispatchQueue to access the machine.
 
 ## License terms
 
