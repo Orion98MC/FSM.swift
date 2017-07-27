@@ -1,5 +1,5 @@
 # FSM.swift
-A very lightweight Finite State Machine in Swift
+A very lightweight and generic event driven Finite State Machine in Swift
 
 ## Usage
 
@@ -8,16 +8,38 @@ Then later you may send events to the machine.
 
 ## API
 
+The FSM class is a generic class that expects typed states and events. Both types need to be Equatable.
+
+```swift
+public class FSM<StateType: Equatable, EventType: Equatable> { ... }
+```
+
 Instanciate a new machine:
 
 ```swift
 public convenience init(withStates states: [StateType])
+
+  _or_
+
+public init(withDefinitions definitions: [StateDefinition])
 ```
+
+When you use the former form init(withStates:), the states are automatically mapped to StateDefinition-s. FSM uses StateDefinition to augment the state with callbacks (see below)
 
 Define a transition:
 
 ```swift
 public func transition(on event: EventType, from state: StateType, to target: @escaping @autoclosure () -> StateType?)
+
+  _or_
+
+public func transition(on event: EventType, from state: StateType, with target: @escaping () -> StateType?)
+```
+
+Set a state:
+
+```swift
+public func setState(_ state: StateType)
 ```
 
 Send an event:
@@ -26,30 +48,61 @@ Send an event:
 public func event(_ event: EventType)
 ```
 
+### States Callbacks
+
+States can trigger 3 kinds of callbacks:
+
+* onCycle, when a state is cycled (re-entered from itself)
+* onEnter, when a state in entered (from a different state)
+* onLeave, when a state is leaved (to a different state)
+
+You attach a callback to a state by using its StateDefinition as returned by:
+
+```swift
+public func definedState(_ state: StateType) -> StateDefinition?
+```
+
+Example:
+
+```swift
+machine.definedState(.off)?.onEnter = {
+  // Do stuff on entering off state
+}
+```
+
+State definitions is a simple wraper that augments the state with callbacks. Exemple:
+
+```swift
+let sd1 = FSM.StateDefinition(.off)
+sd1.onEnter = { ... }
+sd1.onCycle = { ... }
+sd1.onLeave = { ... }
+``` 
+
 ## Example
 
 ```swift
 
-enum State {
-  case on, off
-}
+// Let's define our states and events
+enum State { case on, off }
+enum Event { case powerOn, powerOff }
 
-enum Event {
-  case powerOn, powerOff
-}
-
+// Create the machine
 var machine = FSM<State, Event>(withStates: [.off, .on]) // The default starting state is the first state (here .off)
 
+// Add transitions...
 machine.transition(on: .powerOff, from: .on, to: .off)
 machine.transition(on: .powerOn, from: .off, with: {
   // Initialize stuff
   return .on // Return the next state
 })
 
+// Optionaly add callbacks...
 machine.definedState(.off)?.onEnter = {
   // Do stuff on entering off state
 }
 
+// Done!
 machine.event(.powerOn)
 ```
 
