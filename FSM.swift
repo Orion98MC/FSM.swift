@@ -35,6 +35,7 @@ public class FSM<StateType: Equatable, EventType: Equatable> {
   }
 
   public var name: String = ""
+  public var debugMode: Bool = false // Shows some NSLog when set to true
   private var definitions: [StateDefinition] = []
   private var transitions: [StateTransition] = []
 
@@ -69,6 +70,7 @@ public class FSM<StateType: Equatable, EventType: Equatable> {
   }
 
   public func setState(_ state: StateType) {
+    if debugMode { NSLog("FSM Set state \(state)") }
     let definition = definedState(state)!
     guard definition.state != self.state else {
       stateDefinition.onCycle?()
@@ -81,14 +83,18 @@ public class FSM<StateType: Equatable, EventType: Equatable> {
   }
 
   public func event(_ event: EventType) {
+    if debugMode { NSLog("FSM Event: \(event)") }
     lastEvent = event
     guard let aTransition = transitions.filter({ $0.event == event && $0.state == state }).first else {
-      print("No transition for \(event)@\(state) in \(self.transitions)")
+      if debugMode { NSLog("No transition for \(event)@\(state) in \(self.transitions)") }
       return
     }
 
-    if let targetState = aTransition.target() {
-      setState(targetState)
+    guard let targetState = aTransition.target() else {
+      if debugMode { NSLog("No target state!") }
+      return
     }
+    
+    setState(targetState)
   }
 }
