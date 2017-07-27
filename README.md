@@ -18,9 +18,6 @@ Instanciate a new machine:
 
 ```swift
 public convenience init(withStates states: [StateType])
-
-  _or_
-
 public init(withDefinitions definitions: [StateDefinition])
 ```
 
@@ -31,9 +28,6 @@ Define a transition:
 
 ```swift
 public func transition(on event: EventType, from state: StateType, to target: @escaping @autoclosure () -> StateType?)
-
-  _or_
-
 public func transition(on event: EventType, from state: StateType, with target: @escaping () -> StateType?)
 ```
 
