@@ -51,7 +51,7 @@ States can trigger 3 kinds of callbacks:
 * onEnter, when a state in entered (from a different state)
 * onLeave, when a state is leaved (to a different state)
 
-You attach a callback to a state by using its StateDefinition as returned by:
+You attach a callback to a state using its StateDefinition as returned by:
 
 ```swift
 public func definedState(_ state: StateType) -> StateDefinition?
@@ -65,7 +65,7 @@ machine.definedState(.off)?.onEnter = {
 }
 ```
 
-StateDefinition is a simple wraper that augments a state with callbacks. Exemple:
+StateDefinition is a simple wraper that augments a state with callbacks. Example:
 
 ```swift
 let sd1 = FSM.StateDefinition(.off)
