@@ -53,8 +53,9 @@ public class FSM<StateType: Equatable, EventType: Equatable> {
     self.stateDefinition = definitions.first!
   }
 
-  public convenience init(withStates states: [StateType]) {
-    self.init(withDefinitions: states.map({ StateDefinition($0) }))
+  public init(withStates states: [StateType]) {
+    self.definitions = states.map({ StateDefinition($0) })
+    self.stateDefinition = definitions.first!
   }
 
   public func transition(on event: EventType, from state: StateType, to target: @escaping @autoclosure () -> StateType?) {
