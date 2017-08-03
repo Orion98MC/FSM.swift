@@ -17,7 +17,7 @@ public class FSM<StateType: Equatable, EventType: Equatable> { ... }
 Instanciate a new machine:
 
 ```swift
-public convenience init(withStates states: [StateType])
+public init(withStates states: [StateType])
 public init(withDefinitions definitions: [StateDefinition])
 ```
 
