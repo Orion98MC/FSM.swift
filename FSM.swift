@@ -34,7 +34,7 @@ public class FSM<StateType: Equatable, EventType: Equatable> {
     }
   }
   
-  public var name: String = ""
+  public var name: String?
   public var debugMode: Bool = false // Shows some NSLog when set to true
   private var definitions: [StateDefinition] = []
   private var transitions: [StateTransition] = []
@@ -62,6 +62,12 @@ public class FSM<StateType: Equatable, EventType: Equatable> {
     transitions.append(StateTransition(event: event, state: state, target: target))
   }
   
+  public func transition(on event: EventType, from states: [StateType], to target: @escaping @autoclosure () -> StateType?) {
+    for state in states {
+      transitions.append(StateTransition(event: event, state: state, target: target))
+    }
+  }
+  
   public func transition(on event: EventType, from state: StateType, with target: @escaping () -> StateType?) {
     transitions.append(StateTransition(event: event, state: state, target: target))
   }
@@ -71,7 +77,8 @@ public class FSM<StateType: Equatable, EventType: Equatable> {
   }
   
   public func setState(_ state: StateType) {
-    if debugMode { NSLog("FSM Set state \(state)") }
+    if debugMode { NSLog("FSM(\(name ?? "?")) SetState \(state)") }
+    
     let definition = definedState(state)!
     definition.state = state
     
@@ -87,15 +94,17 @@ public class FSM<StateType: Equatable, EventType: Equatable> {
   }
   
   public func event(_ event: EventType) {
-    if debugMode { NSLog("FSM Event: \(event)") }
+    if debugMode { NSLog("FSM(\(name ?? "?")) Event: \(event)") }
+    
     lastEvent = event
-    guard let aTransition = transitions.filter({ $0.event == event && $0.state == state }).first else {
-      if debugMode { NSLog("No transition for \(event)@\(state) in \(self.transitions)") }
+    
+    guard let transition = transitions.filter({ $0.event == event && $0.state == state }).first else {
+      if debugMode { NSLog("FSM(\(name ?? "?")) No transition for \(event)@\(state) in \(self.transitions)") }
       return
     }
     
-    guard let targetState = aTransition.target() else {
-      if debugMode { NSLog("No target state!") }
+    guard let targetState = transition.target() else {
+      if debugMode { NSLog("FSM(\(name ?? "?")) No target state! State unchanged: \(state)") }
       return
     }
     
