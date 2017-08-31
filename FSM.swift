@@ -48,14 +48,16 @@ public class FSM<StateType: Equatable, EventType: Equatable> {
   public var lastEvent: EventType?
   public var previousState: StateType?
   
-  public init(withDefinitions definitions: [StateDefinition]) {
+  public init(withDefinitions definitions: [StateDefinition], configure: ((FSM) -> Void)? = nil) {
     self.definitions = definitions
     self.stateDefinition = definitions.first!
+    configure?(self)
   }
   
-  public init(withStates states: [StateType]) {
+  public init(withStates states: [StateType], configure: ((FSM) -> Void)? = nil) {
     self.definitions = states.map({ StateDefinition($0) })
     self.stateDefinition = definitions.first!
+    configure?(self)
   }
   
   public func transition(on event: EventType, from state: StateType, to target: @escaping @autoclosure () -> StateType?) {
